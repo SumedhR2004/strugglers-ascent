@@ -3,13 +3,43 @@ import { storage, getLevelInfo, checkAndTriggerAchievements } from '../lib/stora
 import { 
   ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar 
 } from 'recharts';
-import { Dumbbell, Flame, TrendingUp, Trophy, Plus, Trash2 } from 'lucide-react';
+import { Dumbbell, Flame, TrendingUp, Trophy, Plus, Trash2, Shield, Swords } from 'lucide-react';
+
+const WEAPONS = [
+  { id: 'dagger', name: 'Tethered Dagger', desc: 'A rusty dagger. Your struggle has just begun.', req: 'Default unlocked' },
+  { id: 'greatsword', name: 'Iron Slab Greatsword', desc: 'A massive hunk of raw iron. Demands high Strength.', req: 'Requires STR Level 5', check: (levels) => levels.STR >= 5 },
+  { id: 'dragonslayer', name: 'Dragon-Slayer Blade', desc: 'Too thick, too heavy, and too rough to be called a sword. Legend says it can cleave dragons.', req: 'Requires STR Level 10', check: (levels) => levels.STR >= 10 },
+  { id: 'scroll', name: 'Scroll of Runic Seals', desc: 'A parchment inscribed with ancient equations to focus the mind.', req: 'Requires INT Level 5', check: (levels) => levels.INT >= 5 },
+  { id: 'grimoire', name: 'Grimoire of the Void', desc: 'A dark ledger filled with logic-defying algorithms.', req: 'Requires INT Level 10', check: (levels) => levels.INT >= 10 }
+];
+
+const ARMORS = [
+  { id: 'rags', name: 'Tattered Rag Cloak', desc: 'Simple worn cloth. Offers minimal protection against fate.', req: 'Default unlocked' },
+  { id: 'chainmail', name: 'Ashen Chainmail', desc: 'Standard steel chain links forged in ashes.', req: 'Requires VIT Level 5', check: (levels) => levels.VIT >= 5 },
+  { id: 'berserker', name: 'Berserker Carapace', desc: 'A cursed iron suit that fuels your relentless drive to move forward.', req: 'Requires VIT Level 10', check: (levels) => levels.VIT >= 10 },
+  { id: 'assassin', name: 'Shadow Assassin Garb', desc: 'Light weight silent leather that blends with shadows.', req: 'Requires AGI Level 5', check: (levels) => levels.AGI >= 5 },
+  { id: 'shroud', name: 'Void-Stalker Shroud', desc: 'A cloak woven from dark energy that bends space around you.', req: 'Requires AGI Level 10', check: (levels) => levels.AGI >= 10 }
+];
+
+const RELICS = [
+  { id: 'ring', name: 'Dull Brass Ring', desc: 'A simple band. Provides comfort in dark times.', req: 'Default unlocked' },
+  { id: 'talisman', name: 'Talisman of Resolve', desc: 'A heavy medallion carved with the symbol of the Beast of Resolve.', req: 'Requires PER Level 5', check: (levels) => levels.PER >= 5 },
+  { id: 'unbroken', name: 'Mark of the Unbroken', desc: 'A runic sigil burned into your mind. Earned by pure consistency.', req: 'Requires 7-Day Streak', check: (levels, streak) => (streak?.longestStreak || 0) >= 7 || (streak?.currentStreak || 0) >= 7 },
+  { id: 'eclipse_sigil', name: 'Red Eclipse Sigil', desc: 'The ultimate seal of the survivor. You conquered the eclipse.', req: 'Requires 10k+ Total XP', check: (levels, streak, totalXP) => totalXP >= 10000 }
+];
 
 export default function CharacterSheet({ onNotification, activeTab }) {
   const [stats, setStats] = useState(null);
+  const [streak, setStreak] = useState(null);
   const [workoutLog, setWorkoutLog] = useState([]);
   const [cardioLog, setCardioLog] = useState([]);
   
+  // Equipped Gear States
+  const [equippedWeapon, setEquippedWeapon] = useState(localStorage.getItem('brand-eq-weapon') || 'dagger');
+  const [equippedArmor, setEquippedArmor] = useState(localStorage.getItem('brand-eq-armor') || 'rags');
+  const [equippedRelic, setEquippedRelic] = useState(localStorage.getItem('brand-eq-relic') || 'ring');
+  const [selectedGearTab, setSelectedGearTab] = useState('weapons');
+
   // Exercise states
   const [exerciseName, setExerciseName] = useState('');
   const [setsCount, setSetsCount] = useState(3);
@@ -29,6 +59,9 @@ export default function CharacterSheet({ onNotification, activeTab }) {
   const loadCharacterData = () => {
     const statsState = storage.getStatsState();
     setStats(statsState);
+
+    const streakState = storage.getStreakData();
+    setStreak(streakState);
 
     // Load workouts/cardio logged today from daily log
     const dailyLog = storage.getDailyLog(todayStr);
@@ -233,6 +266,62 @@ export default function CharacterSheet({ onNotification, activeTab }) {
     setCardioLog(updatedCardios);
   };
 
+  // Calculate total cumulative XP across all stats to check relic unlock
+  const totalCumulativeXP = (stats.STR?.cumulativeXP || 0) + 
+                            (stats.AGI?.cumulativeXP || 0) + 
+                            (stats.VIT?.cumulativeXP || 0) + 
+                            (stats.INT?.cumulativeXP || 0) + 
+                            (stats.PER?.cumulativeXP || 0);
+
+  const levels = {
+    STR: strInfo.level,
+    AGI: agiInfo.level,
+    VIT: vitInfo.level,
+    INT: intInfo.level,
+    PER: perInfo.level
+  };
+
+  const activeWep = WEAPONS.find(w => w.id === equippedWeapon) || WEAPONS[0];
+  const activeArm = ARMORS.find(a => a.id === equippedArmor) || ARMORS[0];
+  const activeRel = RELICS.find(r => r.id === equippedRelic) || RELICS[0];
+
+  const checkIsUnlocked = (item) => {
+    if (!item.check) return true; // default items are always unlocked
+    return item.check(levels, streak, totalCumulativeXP);
+  };
+
+  const handleEquip = (itemId, type) => {
+    if (type === 'weapons') {
+      setEquippedWeapon(itemId);
+      localStorage.setItem('brand-eq-weapon', itemId);
+      onNotification({
+        type: 'quest_complete',
+        title: 'WEAPON ARMED',
+        desc: `You equipped the ${WEAPONS.find(w => w.id === itemId).name}.`,
+        quote: "A blade is only as strong as the hand that holds it."
+      });
+    } else if (type === 'armors') {
+      setEquippedArmor(itemId);
+      localStorage.setItem('brand-eq-armor', itemId);
+      onNotification({
+        type: 'quest_complete',
+        title: 'ARMOR FIT FOR TRIAL',
+        desc: `You equipped the ${ARMORS.find(a => a.id === itemId).name}.`,
+        quote: "It is a cursed shield that blocks the strikes of fate."
+      });
+    } else if (type === 'relics') {
+      setEquippedRelic(itemId);
+      localStorage.setItem('brand-eq-relic', itemId);
+      onNotification({
+        type: 'quest_complete',
+        title: 'RELIC INFUSED',
+        desc: `You equipped the ${RELICS.find(r => r.id === itemId).name}.`,
+        quote: "A heavy symbol of your unbroken resolve."
+      });
+    }
+    audioController.playLevelUp();
+  };
+
   const statRow = (name, info, colorClass) => (
     <div key={name} className="border border-brand-border bg-brand-card p-4 space-y-2">
       <div className="flex justify-between items-baseline">
@@ -307,6 +396,145 @@ export default function CharacterSheet({ onNotification, activeTab }) {
           {statRow('VIT (Vitality)', vitInfo, 'text-indigo-400')}
           {statRow('INT (Intellect)', intInfo, 'text-purple-400')}
           {statRow('PER (Perception)', perInfo, 'text-orange-400')}
+        </div>
+      </div>
+
+      {/* RPG Gear & Equipment (Struggler's Armory) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Equipped Loadout Card */}
+        <div className="lg:col-span-5 border border-brand-border bg-brand-card p-6 shadow-xl space-y-5 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 border-b border-brand-border pb-3 mb-4 text-brand-bone">
+              <Swords className="w-5 h-5 text-brand-red animate-pulse" />
+              <h3 className="font-serif uppercase tracking-widest text-xs font-bold">Equipped Loadout</h3>
+            </div>
+
+            <div className="space-y-4">
+              {/* Weapon Slot */}
+              <div className="border border-brand-border bg-brand-bg p-3 flex gap-3 items-center">
+                <div className="w-10 h-10 border border-brand-border/80 flex items-center justify-center bg-brand-card text-brand-gold flex-shrink-0">
+                  <Swords className="w-5 h-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="text-[8px] font-mono text-brand-gray uppercase tracking-widest block">Weapon Slot</span>
+                  <span className="text-xs font-serif font-bold text-brand-bone uppercase block">{activeWep.name}</span>
+                  <p className="text-[9px] text-brand-gray-light leading-relaxed truncate">{activeWep.desc}</p>
+                </div>
+              </div>
+
+              {/* Armor Slot */}
+              <div className="border border-brand-border bg-brand-bg p-3 flex gap-3 items-center">
+                <div className="w-10 h-10 border border-brand-border/80 flex items-center justify-center bg-brand-card text-brand-red flex-shrink-0">
+                  <Shield className="w-5 h-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="text-[8px] font-mono text-brand-gray uppercase tracking-widest block">Armor Slot</span>
+                  <span className="text-xs font-serif font-bold text-brand-bone uppercase block">{activeArm.name}</span>
+                  <p className="text-[9px] text-brand-gray-light leading-relaxed truncate">{activeArm.desc}</p>
+                </div>
+              </div>
+
+              {/* Relic Slot */}
+              <div className="border border-brand-border bg-brand-bg p-3 flex gap-3 items-center">
+                <div className="w-10 h-10 border border-brand-border/80 flex items-center justify-center bg-brand-card text-indigo-400 flex-shrink-0">
+                  <Trophy className="w-5 h-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="text-[8px] font-mono text-brand-gray uppercase tracking-widest block">Relic Slot</span>
+                  <span className="text-xs font-serif font-bold text-brand-bone uppercase block">{activeRel.name}</span>
+                  <p className="text-[9px] text-brand-gray-light leading-relaxed truncate">{activeRel.desc}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-[8px] font-mono text-brand-gray uppercase text-center border-t border-brand-border/40 pt-3">
+            Equipped gear reflects your progress in the crucible.
+          </div>
+        </div>
+
+        {/* Armory Locker Card */}
+        <div className="lg:col-span-7 border border-brand-border bg-brand-card p-6 shadow-xl space-y-4">
+          <div className="flex items-center justify-between border-b border-brand-border pb-3">
+            <div className="flex items-center gap-2 text-brand-bone">
+              <Trophy className="w-5 h-5 text-brand-gold animate-pulse" />
+              <h3 className="font-serif uppercase tracking-widest text-xs font-bold">Struggler's Armory Locker</h3>
+            </div>
+            
+            {/* Locker tab controls */}
+            <div className="flex gap-2">
+              {['weapons', 'armors', 'relics'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setSelectedGearTab(tab)}
+                  className={`px-2.5 py-1 text-[8px] font-serif uppercase tracking-widest border transition-all cursor-pointer ${
+                    selectedGearTab === tab 
+                      ? 'border-brand-red bg-brand-red/10 text-brand-bone font-black' 
+                      : 'border-brand-border bg-[#090909] text-brand-gray hover:text-brand-gray-light'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* List of items in current tab */}
+          <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
+            {(selectedGearTab === 'weapons' ? WEAPONS : selectedGearTab === 'armors' ? ARMORS : RELICS).map(item => {
+              const unlocked = checkIsUnlocked(item);
+              const equippedId = selectedGearTab === 'weapons' ? equippedWeapon : selectedGearTab === 'armors' ? equippedArmor : equippedRelic;
+              const isEquipped = equippedId === item.id;
+
+              return (
+                <div 
+                  key={item.id} 
+                  className={`border p-3 flex justify-between items-center transition-all ${
+                    unlocked 
+                      ? 'border-brand-border bg-[#0d0d0d] hover:border-brand-border/80' 
+                      : 'border-brand-border/40 bg-brand-bg opacity-40'
+                  }`}
+                >
+                  <div className="min-w-0 flex-1 pr-4">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-serif font-black uppercase tracking-wider ${unlocked ? 'text-brand-bone' : 'text-brand-gray'}`}>
+                        {item.name}
+                      </span>
+                      {!unlocked && (
+                        <span className="text-[7px] font-mono text-brand-red uppercase px-1 border border-brand-red/40 bg-brand-red/5">
+                          Locked
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[9px] text-brand-gray-light mt-0.5 leading-relaxed">
+                      {unlocked ? item.desc : `LOCKED. ${item.req}`}
+                    </p>
+                  </div>
+
+                  <div className="flex-shrink-0">
+                    {unlocked ? (
+                      isEquipped ? (
+                        <span className="text-[9px] font-serif uppercase tracking-widest font-black text-brand-gold bg-brand-gold/5 border border-brand-gold px-2.5 py-1">
+                          Equipped
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => handleEquip(item.id, selectedGearTab)}
+                          className="px-3 py-1 border border-brand-red hover:bg-brand-red text-brand-red hover:text-brand-bone text-[9px] font-serif uppercase tracking-widest transition-all cursor-pointer"
+                        >
+                          Equip
+                        </button>
+                      )
+                    ) : (
+                      <span className="text-[9px] font-serif uppercase tracking-widest text-brand-gray px-3 py-1 border border-brand-border/40 select-none">
+                        Locked
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 

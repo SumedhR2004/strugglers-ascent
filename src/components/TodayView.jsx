@@ -3,7 +3,7 @@ import { storage, awardXPForQuest, checkAndTriggerAchievements, getLevelInfo, ge
 import { 
   Brain, Dumbbell, Droplet, Moon, Utensils, PenTool, CheckSquare, Square, 
   Plus, Minus, Flame, ShieldAlert, Award, Star, BookOpen, Terminal,
-  Play, Pause, RotateCcw, Timer
+  Play, Pause, RotateCcw, Timer, Music, Volume2, VolumeX
 } from 'lucide-react';
 import { audioController } from '../lib/audio';
 import { BrandSigil } from './BrandSigil';
@@ -23,6 +23,49 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
   const [timerRunning, setTimerRunning] = useState(false);
   const [timerMode, setTimerMode] = useState('focus'); // 'focus' | 'rest'
   const [customMin, setCustomMin] = useState('25');
+
+  // Audio Control States
+  const [musicPlaying, setMusicPlaying] = useState(
+    audioController.isMusicEnabled() && !audioController.isMuted()
+  );
+  const [musicVolume, setMusicVolume] = useState(audioController.getVolume());
+  const [sfxEnabled, setSfxEnabled] = useState(!audioController.isMuted());
+
+  useEffect(() => {
+    const handleAudioStateChange = () => {
+      setMusicPlaying(audioController.isMusicEnabled() && !audioController.isMuted());
+      setMusicVolume(audioController.getVolume());
+      setSfxEnabled(!audioController.isMuted());
+    };
+    window.addEventListener('audio-state-changed', handleAudioStateChange);
+    return () => window.removeEventListener('audio-state-changed', handleAudioStateChange);
+  }, []);
+
+  const handleToggleMusicWidget = () => {
+    const nextMusic = !audioController.isMusicEnabled();
+    audioController.setMusicEnabled(nextMusic);
+    if (nextMusic) {
+      audioController.startAmbientDrone();
+    } else {
+      audioController.stopAmbientDrone();
+    }
+    setMusicPlaying(nextMusic && !audioController.isMuted());
+    window.dispatchEvent(new Event('audio-state-changed'));
+  };
+
+  const handleToggleSfxWidget = () => {
+    const nextMuted = sfxEnabled;
+    audioController.setMuted(nextMuted);
+    setSfxEnabled(!nextMuted);
+    window.dispatchEvent(new Event('audio-state-changed'));
+  };
+
+  const handleVolumeSliderChange = (e) => {
+    const vol = parseFloat(e.target.value);
+    setMusicVolume(vol);
+    audioController.setVolume(vol);
+    window.dispatchEvent(new Event('audio-state-changed'));
+  };
 
   // Direct preset loading from dashboard
   const handleLoadPresetsDirectly = () => {
@@ -649,6 +692,100 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
                 </button>
               </div>
             </form>
+          </div>
+
+          {/* The Battle Hymn Audio Widget Card */}
+          <div className="border border-brand-border bg-brand-card p-6 shadow-xl space-y-4 relative overflow-hidden">
+            <div className="flex items-center justify-between border-b border-brand-border pb-3">
+              <div className="flex items-center gap-2 text-brand-bone">
+                <Music className="w-4 h-4 text-brand-gold animate-pulse" />
+                <h3 className="font-serif uppercase tracking-widest text-xs font-bold text-brand-bone">The Battle Hymn</h3>
+              </div>
+              <span className="text-[8px] font-mono text-brand-gray uppercase">Audio Core</span>
+            </div>
+
+            {/* Rotating Vinyl visualizer */}
+            <div className="flex items-center gap-3.5 py-3 px-3 bg-[#090909] border border-brand-border/40 relative">
+              <div className="relative flex-shrink-0">
+                <div 
+                  className={`w-12 h-12 rounded-full bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-950 border border-neutral-700 flex items-center justify-center relative shadow-[0_0_10px_rgba(0,0,0,0.8)] ${musicPlaying ? 'animate-spin' : ''}`}
+                  style={{ animationDuration: '8s' }}
+                >
+                  {/* Vinyl grooves */}
+                  <div className="w-8 h-8 rounded-full border border-neutral-700/40 absolute" />
+                  <div className="w-5 h-5 rounded-full border border-neutral-800/60 absolute" />
+                  {/* Center label */}
+                  <div className="w-3 h-3 rounded-full bg-brand-red border border-black flex items-center justify-center z-10">
+                    <div className="w-1 h-1 rounded-full bg-[#090909]" />
+                  </div>
+                </div>
+                {/* Tone arm */}
+                <div 
+                  className={`w-1.5 h-5 bg-neutral-600 border border-neutral-800 rounded-full absolute -top-1 -right-0.5 origin-top-left transition-transform duration-500 ${musicPlaying ? 'rotate-12' : '-rotate-12'}`}
+                />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <span className="text-[8px] font-mono text-brand-gray uppercase block tracking-wider">Now Playing</span>
+                <span className="text-[10px] font-serif font-black text-brand-bone tracking-wide uppercase truncate block">Lone Wolf Theme</span>
+                <span className="text-[7px] font-mono text-brand-gold uppercase block mt-0.5">Gapless Loop Active</span>
+              </div>
+            </div>
+
+            {/* Audio Controls */}
+            <div className="flex items-center justify-between gap-4 pt-1">
+              <button
+                id="btn_widget_play_toggle"
+                onClick={handleToggleMusicWidget}
+                className={`flex-1 py-1.5 border text-[9px] font-serif uppercase tracking-widest font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                  musicPlaying 
+                    ? 'bg-[#1a0f0f] border-brand-red text-brand-red hover:bg-brand-red hover:text-brand-bone' 
+                    : 'bg-brand-red border-brand-red text-brand-bone hover:bg-transparent'
+                }`}
+              >
+                {musicPlaying ? (
+                  <>
+                    <Pause className="w-3 h-3" /> Pause
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-3 h-3" /> Play
+                  </>
+                )}
+              </button>
+
+              <button
+                id="btn_widget_sfx_toggle"
+                onClick={handleToggleSfxWidget}
+                className={`px-3 py-1.5 border text-[9px] font-serif uppercase tracking-widest font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                  sfxEnabled 
+                    ? 'border-brand-border text-brand-bone hover:border-brand-red hover:text-brand-red' 
+                    : 'border-brand-red text-brand-red hover:bg-brand-red hover:text-brand-bone'
+                }`}
+                title={sfxEnabled ? "Mute All" : "Unmute All"}
+              >
+                {sfxEnabled ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
+                <span>{sfxEnabled ? "Mute" : "Unmute"}</span>
+              </button>
+            </div>
+
+            {/* Slider */}
+            <div className="space-y-1 pt-1.5 border-t border-brand-border/20">
+              <div className="flex justify-between text-[8px] font-mono text-brand-gray uppercase tracking-wider">
+                <span>Volume</span>
+                <span className="text-brand-gold">{Math.round(musicVolume * 100)}%</span>
+              </div>
+              <input
+                id="slider_widget_volume"
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={musicVolume}
+                onChange={handleVolumeSliderChange}
+                className="w-full h-1 bg-brand-bg border border-brand-border rounded-none appearance-none cursor-pointer accent-brand-red animate-none"
+              />
+            </div>
           </div>
         </div>
       </div>

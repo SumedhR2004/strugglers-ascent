@@ -25,6 +25,91 @@ const TABS = [
   { id: 'settings',    label: 'Settings',  Icon: SettingsIcon },
 ];
 
+// ── EMBER CANVAS PARTICLE OVERLAY (MASTERCLASS FX) ──
+function EmberOverlay({ active }) {
+  const canvasRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!active) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Create particles
+    const particles = [];
+    const particleCount = 70;
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: canvas.height + Math.random() * 100,
+        vx: (Math.random() - 0.5) * 1.8,
+        vy: -Math.random() * 2.5 - 1.2,
+        size: Math.random() * 3.5 + 1,
+        color: Math.random() > 0.4 ? '#a51c1c' : '#c9a227', // red or gold
+        alpha: Math.random() * 0.6 + 0.4,
+        decay: Math.random() * 0.008 + 0.003
+      });
+    }
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= p.decay;
+
+        // Draw particle with glow
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Recycle dead particles
+        if (p.alpha <= 0 || p.y < -10 || p.x < -10 || p.x > canvas.width + 10) {
+          p.x = Math.random() * canvas.width;
+          p.y = canvas.height + Math.random() * 20;
+          p.vx = (Math.random() - 0.5) * 1.8;
+          p.vy = -Math.random() * 2.5 - 1.2;
+          p.alpha = Math.random() * 0.6 + 0.4;
+        }
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [active]);
+
+  if (!active) return null;
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-[49] w-full h-full"
+    />
+  );
+}
+
 export default function App() {
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [activeTab, setActiveTab] = useState('today');
@@ -234,6 +319,7 @@ export default function App() {
       </nav>
 
       {/* ── SYSTEM NOTIFICATION OVERLAY ── */}
+      <EmberOverlay active={!!currentNotif} />
       {currentNotif && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-end md:items-center justify-center p-0 md:p-4 z-50 animate-fade-in">
           <div className="system-panel w-full md:max-w-lg border-t md:border border-brand-red bg-[#0d0d0d] p-6 md:p-8 shadow-[0_0_40px_rgba(139,0,0,0.4)] relative animate-system-slide rounded-t-2xl md:rounded-none">

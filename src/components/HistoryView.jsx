@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { storage, getLevelInfo, checkAndTriggerAchievements } from '../lib/storage';
-import { Calendar, ChevronRight, Plus, Minus, CheckSquare, Square, Save, RotateCcw } from 'lucide-react';
+import { Calendar, ChevronRight, Plus, Minus, CheckSquare, Square, Save, RotateCcw, TrendingUp } from 'lucide-react';
+import { 
+  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip as ChartTooltip
+} from 'recharts';
 
 export default function HistoryView({ onNotification, activeTab }) {
   const [pastDays, setPastDays] = useState([]);
@@ -17,12 +20,12 @@ export default function HistoryView({ onNotification, activeTab }) {
     const config = storage.getQuestConfig();
     setQuestConfig(config);
 
-    // Generate list of the last 30 days
+    // Generate list of the last 105 days
     const days = [];
     const today = new Date();
     const tzOffset = today.getTimezoneOffset() * 60000;
 
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 105; i++) {
       const d = new Date();
       d.setDate(today.getDate() - i);
       const dateStr = (new Date(d - tzOffset)).toISOString().slice(0, 10);
@@ -58,6 +61,33 @@ export default function HistoryView({ onNotification, activeTab }) {
       setSelectedLog(log);
       setReflectionText(storage.getReflection(selectedDate));
     }
+  };
+
+  const getPaddedHeatmapCells = () => {
+    if (pastDays.length === 0) return [];
+    
+    // Reverse so oldest is first
+    const chronoDays = [...pastDays].reverse();
+    
+    // Find the day of week for the first day (oldest)
+    const firstDayDate = new Date(chronoDays[0].dateStr);
+    let dayOfWeek = firstDayDate.getDay(); // 0 is Sunday, 1 is Monday...
+    
+    // Align Mon (0) to Sun (6)
+    // Sunday (0) -> 6, Monday (1) -> 0, Tuesday (2) -> 1, etc.
+    const startPadding = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    
+    const cells = [];
+    // Add placeholders for padding
+    for (let i = 0; i < startPadding; i++) {
+      cells.push({ isPlaceholder: true, key: `pad-${i}` });
+    }
+    
+    chronoDays.forEach(day => {
+      cells.push({ ...day, isPlaceholder: false, key: day.dateStr });
+    });
+    
+    return cells;
   };
 
   const handleSelectDay = (dateStr) => {
@@ -169,48 +199,133 @@ export default function HistoryView({ onNotification, activeTab }) {
     return 'bg-[#0f0f0f] border-brand-border text-brand-gray'; // black/gray
   };
 
+  const chartData = pastDays.slice(0, 30).map(day => ({ 
+    date: day.dateStr.slice(5), 
+    pct: day.pct 
+  })).reverse();
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      {/* Grid List of Days */}
-      <div className="lg:col-span-7 border border-brand-border bg-brand-card p-6 shadow-xl space-y-4">
-        <div className="flex items-center gap-2 text-brand-bone border-b border-brand-border pb-3">
-          <Calendar className="w-5 h-5 text-brand-red" />
-          <h3 className="font-serif uppercase tracking-widest text-sm font-bold">Struggle History Log (Past 30 Days)</h3>
+      {/* Left Column: Heatmap + Intensity Curve */}
+      <div className="lg:col-span-7 space-y-6">
+        {/* Heatmap Card */}
+        <div className="border border-brand-border bg-brand-card p-6 shadow-xl space-y-4">
+          <div className="flex items-center gap-2 text-brand-bone border-b border-brand-border pb-3">
+            <Calendar className="w-5 h-5 text-brand-red" />
+            <h3 className="font-serif uppercase tracking-widest text-sm font-bold">Struggle History Ledger (15-Week Heatmap)</h3>
+          </div>
+
+          <div className="flex gap-2.5 pt-2 items-start">
+            {/* Day of Week Labels */}
+            <div className="flex flex-col justify-between h-[96px] text-[8px] font-mono text-brand-gray uppercase select-none pt-1">
+              <span>Mon</span>
+              <span>Wed</span>
+              <span>Fri</span>
+              <span>Sun</span>
+            </div>
+
+            {/* Heatmap Grid wrapping 7 rows tall */}
+            <div className="flex-1 flex flex-col flex-wrap h-[115px] gap-1 overflow-x-auto pb-2 scrollbar-thin">
+              {getPaddedHeatmapCells().map(cell => {
+                if (cell.isPlaceholder) {
+                  return (
+                    <div 
+                      key={cell.key} 
+                      className="w-3 h-3 bg-transparent border border-transparent flex-shrink-0"
+                    />
+                  );
+                }
+
+                const formattedDate = new Date(cell.dateStr).toLocaleDateString(undefined, {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                });
+
+                return (
+                  <button
+                    id={`btn_history_day_${cell.dateStr}`}
+                    key={cell.key}
+                    onClick={() => handleSelectDay(cell.dateStr)}
+                    title={`${formattedDate}: ${cell.pct}% cleared (${cell.completed}/${cell.total} quests)`}
+                    className={`w-3 h-3 border transition-all active:scale-90 hover:scale-110 flex-shrink-0 relative cursor-pointer ${
+                      selectedDate === cell.dateStr ? 'ring-1 ring-brand-bone scale-105 z-10' : ''
+                    } ${getCellColor(cell.pct)}`}
+                  />
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-4 justify-between items-center text-[10px] uppercase font-mono text-brand-gray pt-4 border-t border-brand-border/60">
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 bg-[#c9a227] inline-block border border-[#c9a227]"></span>
+              <span>100% Cleared</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 bg-[#a51c1c] inline-block border border-[#a51c1c]"></span>
+              <span>75-99%</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 bg-[#5a0c0c] inline-block border border-[#5a0c0c]"></span>
+              <span>30-74%</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 bg-[#2a0606] inline-block border border-[#2a0606]"></span>
+              <span>1-29%</span>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-5 gap-2.5 pt-2">
-          {pastDays.map(day => (
-            <button
-              id={`btn_history_day_${day.dateStr}`}
-              key={day.dateStr}
-              onClick={() => handleSelectDay(day.dateStr)}
-              className={`aspect-square p-1 flex flex-col justify-between items-center border text-[9px] font-mono transition-all active:scale-95 hover:brightness-125 ${
-                selectedDate === day.dateStr ? 'ring-2 ring-brand-bone scale-105 z-10' : ''
-              } ${getCellColor(day.pct)}`}
-            >
-              <span className="opacity-75">{day.dateStr.slice(5)}</span>
-              <span className="font-bold text-xs">{day.pct}%</span>
-              <span className="opacity-50 text-[8px]">{day.completed}/{day.total}</span>
-            </button>
-          ))}
-        </div>
+        {/* Struggle Intensity Curve Area Chart */}
+        <div className="border border-brand-border bg-brand-card p-6 shadow-xl flex flex-col justify-between relative min-h-[250px]">
+          <div className="flex items-center gap-2 text-brand-bone border-b border-brand-border pb-3">
+            <TrendingUp className="w-5 h-5 text-brand-red animate-pulse" />
+            <h3 className="font-serif uppercase tracking-widest text-xs font-bold">Struggle Intensity Curve (Past 30 Days)</h3>
+          </div>
 
-        <div className="flex flex-wrap gap-4 justify-between items-center text-[10px] uppercase font-mono text-brand-gray pt-4 border-t border-brand-border/60">
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 bg-[#c9a227] inline-block border border-[#c9a227]"></span>
-            <span>100% Cleared</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 bg-[#a51c1c] inline-block border border-[#a51c1c]"></span>
-            <span>75-99%</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 bg-[#5a0c0c] inline-block border border-[#5a0c0c]"></span>
-            <span>30-74%</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 bg-[#2a0606] inline-block border border-[#2a0606]"></span>
-            <span>1-29%</span>
+          <div className="w-full h-44 mt-4 flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorCurve" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#a51c1c" stopOpacity={0.5} />
+                    <stop offset="95%" stopColor="#a51c1c" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                <XAxis 
+                  dataKey="date" 
+                  stroke="#404040" 
+                  tick={{ fill: '#a3a3a3', fontSize: 8, fontFamily: 'monospace' }} 
+                />
+                <YAxis 
+                  domain={[0, 100]} 
+                  stroke="#404040" 
+                  tick={{ fill: '#a3a3a3', fontSize: 8, fontFamily: 'monospace' }} 
+                />
+                <ChartTooltip 
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="border border-brand-border bg-[#0d0d0d] p-2 text-[9px] font-mono text-brand-bone shadow-xl">
+                          <p className="font-bold">{payload[0].payload.date}</p>
+                          <p className="text-brand-gold mt-0.5">Intensity: {payload[0].value}%</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="pct" 
+                  stroke="#a51c1c" 
+                  strokeWidth={2}
+                  fillOpacity={1} 
+                  fill="url(#colorCurve)" 
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
