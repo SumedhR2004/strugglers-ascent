@@ -88,6 +88,9 @@ function CharacterPortrait({ tier, title }) {
     setImageError(false);
   }, [tier]);
 
+  const ext = tier === 5 ? 'jpg' : 'png';
+  const filename = `character_tier${tier}.${ext}`;
+
   if (imageError) {
     return (
       <div className="w-full h-full min-h-[220px] bg-brand-bg border border-brand-border/40 flex flex-col items-center justify-center p-4 relative overflow-hidden">
@@ -99,7 +102,7 @@ function CharacterPortrait({ tier, title }) {
           <div>
             <h4 className="text-[9px] font-mono text-brand-red tracking-widest uppercase">[ ARTWORK AWAITING ]</h4>
             <p className="text-[9px] text-brand-gray-light leading-relaxed max-w-[190px] mx-auto mt-1">
-              Place <code className="text-brand-gold bg-[#0e0e0e] px-1 py-0.5 text-[8.5px]">char_tier{tier}.png</code> in your <code className="text-brand-gold bg-[#0e0e0e] px-1 py-0.5 text-[8.5px]">public/</code> folder to summon your Struggler.
+              Place <code className="text-brand-gold bg-[#0e0e0e] px-1 py-0.5 text-[8.5px]">{filename}</code> in your <code className="text-brand-gold bg-[#0e0e0e] px-1 py-0.5 text-[8.5px]">public/</code> folder to summon your Struggler.
             </p>
           </div>
         </div>
@@ -109,7 +112,7 @@ function CharacterPortrait({ tier, title }) {
 
   return (
     <img 
-      src={`/char_tier${tier}.png`}
+      src={`/${filename}`}
       alt={title}
       onError={() => setImageError(true)}
       className="w-full h-full min-h-[220px] object-cover border border-brand-border/40 object-center transition-all duration-75"
