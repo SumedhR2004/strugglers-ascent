@@ -279,14 +279,14 @@ export default function SyncCard({ onNotification }) {
             <button 
               id="btn_disconnect_config"
               onClick={handleRemoveConfig}
-              className="text-brand-gray hover:text-brand-red uppercase transition-all"
+              className="text-brand-gray-light hover:text-brand-red uppercase transition-all"
             >
               Delete credentials
             </button>
             <button
               id="btn_cloud_logout"
               onClick={handleLogout}
-              className="text-brand-gray hover:text-brand-bone uppercase transition-all flex items-center gap-1"
+              className="text-brand-gray-light hover:text-brand-bone uppercase transition-all flex items-center gap-1"
             >
               <LogOut className="w-2.5 h-2.5" /> Log Out
             </button>
@@ -307,7 +307,7 @@ export default function SyncCard({ onNotification }) {
           <button
             id="btn_disconnect_config_unauth"
             onClick={handleRemoveConfig}
-            className="text-[9px] font-mono text-brand-gray hover:text-brand-red uppercase transition-all block mx-auto"
+            className="text-[9px] font-mono text-brand-gray-light hover:text-brand-red uppercase transition-all block mx-auto"
           >
             Remove Firebase configuration
           </button>
