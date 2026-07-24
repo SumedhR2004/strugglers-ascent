@@ -3,7 +3,7 @@ import { storage, getLevelInfo, checkAndTriggerAchievements } from '../lib/stora
 import { 
   ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar 
 } from 'recharts';
-import { Dumbbell, Flame, TrendingUp, Trophy, Plus, Trash2, Shield, Swords } from 'lucide-react';
+import { Dumbbell, Flame, TrendingUp, Trophy, Plus, Trash2, Shield, Swords, Sparkles, Lock, Check } from 'lucide-react';
 
 const WEAPONS = [
   { id: 'dagger', name: 'Tethered Dagger', desc: 'A rusty dagger. Your struggle has just begun.', req: 'Default unlocked' },
@@ -28,6 +28,95 @@ const RELICS = [
   { id: 'eclipse_sigil', name: 'Red Eclipse Sigil', desc: 'The ultimate seal of the survivor. You conquered the eclipse.', req: 'Requires 10k+ Total XP', check: (levels, streak, totalXP) => totalXP >= 10000 }
 ];
 
+const CHARACTER_TIERS = [
+  { 
+    tier: 1, 
+    title: 'Masked Struggler', 
+    desc: 'Equipped with tattered rags and a wooden mask. A simple survivor of the initial tragedy.', 
+    class: 'Deprived', 
+    glow: 'shadow-[0_0_20px_rgba(165,28,28,0.25)] border-brand-border/60',
+    banner: 'bg-brand-border/10 text-brand-gray-light',
+    color: 'text-brand-gray-light',
+    req: 'Default unlocked'
+  },
+  { 
+    tier: 2, 
+    title: 'Vanguard Knight', 
+    desc: 'Armed with basic steel armor and a shield. Forging your path through the wilderness.', 
+    class: 'Warrior', 
+    glow: 'shadow-[0_0_20px_rgba(56,189,248,0.3)] border-sky-500/40',
+    banner: 'bg-sky-500/10 text-sky-400',
+    color: 'text-sky-400',
+    req: 'Requires Ashen Chainmail / Shadow Assassin Garb or Level 10+'
+  },
+  { 
+    tier: 3, 
+    title: 'Ashen Crusader', 
+    desc: 'Cursed steel infused with molten embers. Your blade burns through adversity.', 
+    class: 'Ember-Knight', 
+    glow: 'shadow-[0_0_25px_rgba(249,115,22,0.4)] border-orange-500/50',
+    banner: 'bg-orange-500/10 text-orange-400',
+    color: 'text-orange-400',
+    req: 'Requires Berserker Carapace or Level 20+'
+  },
+  { 
+    tier: 4, 
+    title: 'Void Monarch', 
+    desc: 'Wrapped in shadow armor. The shadows bend to your indomitable will.', 
+    class: 'Shadow-Sovereign', 
+    glow: 'shadow-[0_0_30px_rgba(168,85,247,0.4)] border-purple-500/50',
+    banner: 'bg-purple-500/10 text-purple-400',
+    color: 'text-purple-400',
+    req: 'Requires Void-Stalker Shroud or Level 30+'
+  },
+  { 
+    tier: 5, 
+    title: 'Eclipse Sovereign', 
+    desc: 'The ultimate survivor of the dark eclipse. Wearing the crown of unmatched resolve.', 
+    class: 'God-Hand Slayer', 
+    glow: 'shadow-[0_0_35px_rgba(239,68,68,0.5)] border-brand-red',
+    banner: 'bg-brand-red/10 text-brand-red',
+    color: 'text-brand-red',
+    req: 'Requires Red Eclipse Sigil or Level 40+'
+  }
+];
+
+function CharacterPortrait({ tier, title }) {
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [tier]);
+
+  if (imageError) {
+    return (
+      <div className="w-full h-full min-h-[220px] bg-brand-bg border border-brand-border/40 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(139,0,0,0.08)_0%,transparent_70%)] pointer-events-none" />
+        <div className="text-center space-y-3 z-10">
+          <div className="w-14 h-14 mx-auto rounded-full bg-brand-red/10 border border-brand-red/35 flex items-center justify-center text-brand-red animate-pulse">
+            <Swords className="w-7 h-7" />
+          </div>
+          <div>
+            <h4 className="text-[9px] font-mono text-brand-red tracking-widest uppercase">[ ARTWORK AWAITING ]</h4>
+            <p className="text-[9px] text-brand-gray-light leading-relaxed max-w-[190px] mx-auto mt-1">
+              Place <code className="text-brand-gold bg-[#0e0e0e] px-1 py-0.5 text-[8.5px]">char_tier{tier}.png</code> in your <code className="text-brand-gold bg-[#0e0e0e] px-1 py-0.5 text-[8.5px]">public/</code> folder to summon your Struggler.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <img 
+      src={`/char_tier${tier}.png`}
+      alt={title}
+      onError={() => setImageError(true)}
+      className="w-full h-full min-h-[220px] object-cover border border-brand-border/40 object-center transition-all duration-75"
+    />
+  );
+}
+
 export default function CharacterSheet({ onNotification, activeTab }) {
   const [stats, setStats] = useState(null);
   const [streak, setStreak] = useState(null);
@@ -39,6 +128,12 @@ export default function CharacterSheet({ onNotification, activeTab }) {
   const [equippedArmor, setEquippedArmor] = useState(localStorage.getItem('brand-eq-armor') || 'rags');
   const [equippedRelic, setEquippedRelic] = useState(localStorage.getItem('brand-eq-relic') || 'ring');
   const [selectedGearTab, setSelectedGearTab] = useState('weapons');
+
+  // Custom Character Appearance Override
+  const [appearanceOverride, setAppearanceOverride] = useState(
+    localStorage.getItem('brand-char-avatar-override') ? parseInt(localStorage.getItem('brand-char-avatar-override')) : null
+  );
+  const [showAppearanceSelector, setShowAppearanceSelector] = useState(false);
 
   // Exercise states
   const [exerciseName, setExerciseName] = useState('');
@@ -350,12 +445,147 @@ export default function CharacterSheet({ onNotification, activeTab }) {
     </div>
   );
 
+  const isTierUnlocked = (tierNum) => {
+    if (tierNum === 1) return true;
+    if (tierNum === 2) return levels.VIT >= 5 || levels.AGI >= 5 || strInfo.level >= 10 || agiInfo.level >= 10 || vitInfo.level >= 10;
+    if (tierNum === 3) return levels.VIT >= 10 || strInfo.level >= 20 || agiInfo.level >= 20 || vitInfo.level >= 20;
+    if (tierNum === 4) return levels.AGI >= 10 || strInfo.level >= 30 || agiInfo.level >= 30 || vitInfo.level >= 30;
+    if (tierNum === 5) return totalCumulativeXP >= 10000 || strInfo.level >= 40 || agiInfo.level >= 40 || vitInfo.level >= 40;
+    return false;
+  };
+
+  let autoTier = 1;
+  if (equippedRelic === 'eclipse_sigil' || totalCumulativeXP >= 10000) {
+    autoTier = 5;
+  } else if (equippedArmor === 'shroud') {
+    autoTier = 4;
+  } else if (equippedArmor === 'berserker') {
+    autoTier = 3;
+  } else if (equippedArmor === 'chainmail' || equippedArmor === 'assassin') {
+    autoTier = 2;
+  } else {
+    // Stat-based tier upgrades
+    const maxLevel = Math.max(strInfo.level, agiInfo.level, vitInfo.level, intInfo.level, perInfo.level);
+    if (maxLevel >= 40) autoTier = 5;
+    else if (maxLevel >= 30) autoTier = 4;
+    else if (maxLevel >= 20) autoTier = 3;
+    else if (maxLevel >= 10) autoTier = 2;
+  }
+
+  const activeTierNum = (appearanceOverride && isTierUnlocked(appearanceOverride)) ? appearanceOverride : autoTier;
+  const currentTier = CHARACTER_TIERS.find(t => t.tier === activeTierNum) || CHARACTER_TIERS[0];
+
   return (
     <div className="space-y-6">
-      {/* Upper section: Stat list & Radar graph */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Upper section: Character Portrait, Radar graph & Stat list */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+        
+        {/* Character Portrait Card */}
+        <div className={`lg:col-span-4 border bg-brand-card p-5 flex flex-col justify-between shadow-lg relative min-h-[350px] transition-all duration-500 ${currentTier.glow}`}>
+          <div>
+            <div className="flex justify-between items-start mb-3 border-b border-brand-border/40 pb-2.5">
+              <div>
+                <h4 className="text-[7.5px] font-mono text-brand-gray uppercase tracking-widest leading-none">STRUGGLER IDENTITY</h4>
+                <h2 className="text-xs font-serif font-black text-brand-bone tracking-wide uppercase mt-1">
+                  {currentTier.title}
+                </h2>
+              </div>
+              <span className={`text-[7px] font-mono uppercase tracking-widest px-2 py-0.5 border ${currentTier.banner}`}>
+                {currentTier.class}
+              </span>
+            </div>
+            
+            <div className="w-full relative bg-[#070707] border border-brand-border/40 overflow-hidden mb-3 aspect-[4/3] flex items-center justify-center">
+              <CharacterPortrait tier={currentTier.tier} title={currentTier.title} />
+              
+              {appearanceOverride && (
+                <div className="absolute bottom-2 left-2 bg-[#0a0a0a]/90 border border-brand-gold/60 text-brand-gold text-[7px] font-mono px-1.5 py-0.5 uppercase tracking-wider">
+                  Appearance Overridden
+                </div>
+              )}
+            </div>
+            
+            <p className="text-[10px] text-brand-gray-light leading-relaxed mb-4">
+              {currentTier.desc}
+            </p>
+          </div>
+
+          <div className="space-y-2 border-t border-brand-border/40 pt-3">
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setShowAppearanceSelector(!showAppearanceSelector)}
+                className="flex-1 py-1.5 border border-brand-border hover:border-brand-red bg-[#090909] text-brand-bone text-[9px] font-serif uppercase tracking-widest transition-all cursor-pointer text-center flex items-center justify-center gap-1.5"
+              >
+                <Sparkles className="w-3 h-3 text-brand-gold" />
+                {showAppearanceSelector ? "Close Selection" : "Morph Appearance"}
+              </button>
+              
+              {appearanceOverride && (
+                <button 
+                  onClick={() => {
+                    setAppearanceOverride(null);
+                    localStorage.removeItem('brand-char-avatar-override');
+                  }}
+                  className="px-2.5 py-1.5 border border-brand-red/40 hover:border-brand-red bg-[#090909] text-brand-red text-[9px] font-serif uppercase tracking-widest transition-all cursor-pointer text-center"
+                  title="Restore auto-upgrade based on gear"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+
+            {showAppearanceSelector && (
+              <div className="space-y-1 mt-2 bg-[#090909] border border-brand-border/40 p-1.5 max-h-[140px] overflow-y-auto">
+                {CHARACTER_TIERS.map(t => {
+                  const unlocked = isTierUnlocked(t.tier);
+                  const isCurrent = activeTierNum === t.tier;
+
+                  return (
+                    <button
+                      key={t.tier}
+                      disabled={!unlocked}
+                      onClick={() => {
+                        setAppearanceOverride(t.tier);
+                        localStorage.setItem('brand-char-avatar-override', t.tier.toString());
+                      }}
+                      className={`w-full text-left p-1 flex items-center justify-between border transition-all ${
+                        isCurrent 
+                          ? 'border-brand-gold bg-brand-gold/5 text-brand-gold font-bold' 
+                          : unlocked 
+                            ? 'border-brand-border/30 hover:border-brand-border bg-[#0d0d0d] text-brand-bone' 
+                            : 'border-brand-border/10 opacity-30 text-brand-gray cursor-not-allowed'
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1 pr-2">
+                        <span className="text-[8.5px] font-serif uppercase tracking-wide block leading-tight">
+                          Tier {t.tier}: {t.title}
+                        </span>
+                        <span className="text-[6px] font-mono uppercase block text-brand-gray-light leading-none mt-0.5">
+                          {unlocked ? t.class : t.req}
+                        </span>
+                      </div>
+                      
+                      <div className="flex-shrink-0">
+                        {isCurrent ? (
+                          <Check className="w-3 h-3 text-brand-gold" />
+                        ) : !unlocked ? (
+                          <Lock className="w-2.5 h-2.5 text-brand-gray" />
+                        ) : (
+                          <span className="text-[6.5px] font-mono uppercase tracking-wider text-brand-gray border border-brand-border/30 px-1 py-0.5">
+                            Use
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Radar Graph */}
-        <div className="lg:col-span-5 border border-brand-border bg-brand-card p-6 flex flex-col justify-between items-center shadow-lg relative min-h-[300px]">
+        <div className="lg:col-span-4 border border-brand-border bg-brand-card p-6 flex flex-col justify-between items-center shadow-lg relative min-h-[300px]">
           <h3 className="text-xs font-serif uppercase tracking-widest text-brand-gray-light border-b border-brand-border pb-2 w-full text-center">
             Attribute Balance Chart
           </h3>
@@ -390,7 +620,7 @@ export default function CharacterSheet({ onNotification, activeTab }) {
         </div>
 
         {/* Stats List */}
-        <div className="lg:col-span-7 space-y-3">
+        <div className="lg:col-span-4 space-y-3">
           {statRow('STR (Strength)', strInfo, 'text-red-500')}
           {statRow('AGI (Agility)', agiInfo, 'text-sky-400')}
           {statRow('VIT (Vitality)', vitInfo, 'text-indigo-400')}
