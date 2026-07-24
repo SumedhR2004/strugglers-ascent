@@ -1,0 +1,10 @@
+{
+  "appId": "com.brandofsacrifice.ascension",
+  "appName": "The Brand Ascension System",
+  "webDir": "dist",
+  "plugins": {
+    "GoogleSignIn": {
+      "clientId": "8455735843-3gc6dc6utnbn6dlq41k7bd1eguvf7ron.apps.googleusercontent.com"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "8455735843",
+    "project_id": "the-brand-41e3b",
+    "storage_bucket": "the-brand-41e3b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:8455735843:android:cb37e4666314f3929bff96",
+        "android_client_info": {
+          "package_name": "com.brandofsacrifice.ascension"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "8455735843-3gc6dc6utnbn6dlq41k7bd1eguvf7ron.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqpb1MvN12UvlkDN3LfpoUnN6w6b3nSXw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "8455735843-3gc6dc6utnbn6dlq41k7bd1eguvf7ron.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
