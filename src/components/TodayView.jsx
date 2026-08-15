@@ -509,15 +509,15 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
         {/* Current Rank Panel */}
         <div className="md:col-span-2 border border-brand-border bg-brand-card p-6 shadow-lg relative overflow-hidden flex flex-col sm:flex-row gap-6 justify-between items-center group">
           {/* Background Image with dark fantasy overlay */}
-          <div className="absolute inset-0 z-0 opacity-25 pointer-events-none transition-transform duration-1000 group-hover:scale-105">
+          <div className="absolute inset-0 z-0 opacity-45 pointer-events-none transition-transform duration-1000 group-hover:scale-105">
             <img 
               src={`/rank_bg_${activeTier}.jpg`} 
               alt="" 
-              className="w-full h-full object-cover filter brightness-[0.35] contrast-125 saturate-[0.65]"
+              className="w-full h-full object-cover filter brightness-[0.55] contrast-110 saturate-[0.75]"
             />
             {/* Thematic dark gradients to blend it perfectly */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d0d] via-[#0d0d0d]/80 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] to-transparent opacity-90" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d0d] via-[#0d0d0d]/70 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] to-transparent opacity-80" />
           </div>
 
           <div className="absolute top-0 right-0 w-24 h-24 bg-red-950/10 rounded-full blur-2xl pointer-events-none z-0" />
