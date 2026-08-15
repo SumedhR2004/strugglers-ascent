@@ -2,16 +2,16 @@
 
 // A collection of gritty, motivating quotes for the Struggler
 export const STRUGGLER_QUOTES = [
-  "Go ahead and whine. Struggle. Run. Squirm. Fight your way out. Otherwise, you are just a corpse.",
-  "Even if we painstakingly piece together something lost, it doesn't mean things will ever go back to how they were.",
-  "In the end, the struggler is the only one who survives. Keep moving forward.",
-  "If you are always running away, you will never see the things you want to change.",
+  "Cry out. Whine. Twist and fight. But never cease your struggle. In this world, those who stop moving are the first to rot.",
+  "You can gather the scattered shards of what was shattered, but the seams will always show. We rebuild to advance, not to return.",
+  "In the end, only those who refuse to yield remain standing. Keep marching.",
+  "If your back is always turned in flight, you will never witness the destiny you seek to forge.",
   "If you are met by a wall, you must break it down. If there is no path, you must carve one with your own hands.",
-  "My place is here. In the mud, the blood, and the ash. That is where I struggle.",
-  "Do not look back. If you do, you will only see what you have lost.",
-  "If you are worried about crushing ants beneath you, you won't be able to walk.",
-  "Even if we are weak... even if we are flawed... we struggle to live. That is our brand.",
-  "The sword we carry is heavy, thick, and rough. But it is the only tool we have to carve our path."
+  "Let them keep their clean towers. My domain is here—in the mud, the sweat, and the ash. This is where my iron is forged.",
+  "Keep your eyes locked on the horizon. Looking back only summons the ghosts of what you could not save.",
+  "If you hesitate at the crunch of every dry leaf, you will never cross the dark forest. Harden your stride.",
+  "Frail, scarred, and outmatched—we march forward regardless. That is our unbroken resolve.",
+  "The load is heavy and the iron is coarse. Yet it is the only tool we have to carve a destiny."
 ];
 
 export const getRandomQuote = () => {

@@ -279,7 +279,7 @@ export default function App() {
       </main>
 
       <footer className="hidden md:block text-center py-6 text-brand-gray text-[9px] uppercase tracking-wider font-mono space-y-1.5">
-        <p>"Go ahead and whine. Struggle. Run. Squirm. Fight your way out. In the end, only the struggler survives."</p>
+        <p>"Cry out. Whine. Twist and fight. But never cease your struggle. In the end, only those who refuse to yield remain standing."</p>
         <p>
           Built by{" "}
           <a

@@ -78,7 +78,7 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
       type: 'quest_complete',
       title: 'PRESETS LOADED',
       desc: 'Standard struggles loaded to your quest board successfully.',
-      quote: "My place is here. In the mud, the blood, and the ash. That is where I struggle."
+      quote: "Let them keep their clean towers. My domain is here—in the mud, the sweat, and the ash. This is where my iron is forged."
     });
     audioController.playLevelUp();
   };
@@ -107,7 +107,7 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
           type: 'quest_complete',
           title: 'REST PERIOD ENDED',
           desc: 'Rest has concluded. Re-arm yourself and return to the struggle.',
-          quote: "Do not look back. If you do, you will only see what you have lost."
+          quote: "Keep your eyes locked on the horizon. Looking back only summons the ghosts of what you could not save."
         });
         setTimerMode('focus');
         setTimeLeft(timerDuration);
@@ -192,7 +192,7 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
         type: 'streak_decay',
         title: 'THE BRAND DIMS',
         desc: `You faltered in your struggle. Current streak reset to 0. Brand intensity decayed to ${decayedStreak.brandIntensity}%.`,
-        quote: "Even if we weak ones struggle, it is our brand. Stand up."
+        quote: "Frail, scarred, and outmatched—we march forward regardless. That is our resolve. Stand up."
       });
     }
   };
@@ -294,7 +294,7 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
           type: 'achievement_unlocked',
           title: 'THE BRAND DEEPENS: ACHIEVEMENT UNLOCKED',
           desc: `You unlocked the badge [${storage.getQuestConfig() !== null ? storage.getQuestConfig() : ''} - Check achievements sheet].`,
-          quote: "Go ahead and whine. Struggle. Run. Squirm. Fight your way out."
+          quote: "Cry out. Whine. Twist and fight. But never cease your struggle."
         });
       });
 
@@ -348,7 +348,7 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
         type: 'daily_clear',
         title: 'DAILY QUESTS CLEARED',
         desc: `You survived another day of struggle! Bonus: +30 PER XP, +10 VIT XP. Brand Intensity is now ${nextIntensity}%. Streak is ${nextStreak} days!`,
-        quote: "One who dies doing what they want, dies with a smile. But we live on."
+        quote: "Some embrace the quiet grave, but we choose the long, scarred road. We live on."
       });
 
       // Check achievements again for streak rewards
@@ -358,7 +358,7 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
           type: 'achievement_unlocked',
           title: 'THE BRAND DEEPENS: ACHIEVEMENT UNLOCKED',
           desc: `Your daily grind unlocked a new legendary badge. Check the gallery.`,
-          quote: "Even if we weak ones struggle, it is our brand."
+          quote: "Frail, scarred, and outmatched—we march forward regardless."
         });
       });
     }
@@ -449,7 +449,7 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
               </div>
               <h3 className="font-serif uppercase tracking-widest text-sm font-bold text-brand-bone">NO ACTIVE STRUGGLES FORGED</h3>
               <p className="text-xs text-brand-gray-light max-w-md mx-auto leading-relaxed">
-                "In this world, those without a struggle are just corpses." You have no quests configured for today.
+                "In this world, those who surrender to the quiet are already dead." You have no quests configured for today.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
                 <button

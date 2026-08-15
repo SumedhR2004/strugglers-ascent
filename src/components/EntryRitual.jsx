@@ -39,7 +39,7 @@ export default function EntryRitual({ onAccept }) {
             THE STRENGTH OF WILL
           </h2>
           <p className="text-brand-gray-light font-sans text-sm leading-relaxed mb-8">
-            "Go ahead and whine. Struggle. Run. Squirm. Fight your way out. Otherwise, you're just a corpse."
+            "Cry out if you must. Whine. Twist and fight. But never cease your struggle. In this world, those who stop moving are the first to rot."
           </p>
           <p className="text-brand-gray font-serif italic mb-8">
             Return when you are ready.

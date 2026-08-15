@@ -50,7 +50,7 @@ export default function SyncCard({ onNotification }) {
           type: 'quest_complete',
           title: 'FIREBASE KEY COMMITTED',
           desc: 'Cloud sync parameters successfully registered. You can now link your Google Account.',
-          quote: "He who takes action survives. That is the only law of this world."
+          quote: "Those who move are those who survive. That is the only law of the ash."
         });
         
         // Setup listener again since firebase is initialized now
@@ -72,7 +72,7 @@ export default function SyncCard({ onNotification }) {
         type: 'quest_complete',
         title: 'CLOUD ACCOUNT SIGNED IN',
         desc: `Welcome, struggles ledger connected to Google account: ${loggedUser.email}.`,
-        quote: "Struggle. Run. Squirm. Fight your way out."
+        quote: "Fight. Twist. Carve your way out of the dark."
       });
     } catch (e) {
       alert("Failed to log in with Google.");
@@ -86,7 +86,7 @@ export default function SyncCard({ onNotification }) {
         type: 'streak_decay',
         title: 'CLOUD DATABASE DISCONNECTED',
         desc: 'Successfully logged out. Your data will only persist locally.',
-        quote: "Go ahead and whine. Struggle. Otherwise, you're just a corpse."
+        quote: "Cry out if you must. Whine. Twist and fight. But never cease your struggle."
       });
     } catch (e) {
       alert("Failed to log out.");
@@ -104,7 +104,7 @@ export default function SyncCard({ onNotification }) {
         type: 'quest_complete',
         title: 'CLOUD LEDGER BACKUP COMPLETE',
         desc: 'Successfully pushed all stats, logs, and achievements to your secure Firestore cloud store.',
-        quote: "My place is here. In the mud, the blood, and the ash."
+        quote: "Let them keep their clean towers. My domain is here—in the mud, the sweat, and the ash."
       });
     } catch (e) {
       alert("Failed to backup data to the cloud.");
@@ -128,7 +128,7 @@ export default function SyncCard({ onNotification }) {
         type: 'quest_complete',
         title: 'LEDGER SYNC SUCCESSFUL',
         desc: 'Overwrote local stats with cloud backup. Re-branding system database...',
-        quote: "Even if we painstakingly piece together something lost, things change. But we persist."
+        quote: "Even if what was broken is gathered once more, the seams remain. Yet we persist."
       });
       setTimeout(() => {
         window.location.reload();
@@ -151,7 +151,7 @@ export default function SyncCard({ onNotification }) {
         type: 'streak_decay',
         title: 'CLOUDBASE DISCONNECTED',
         desc: 'Firebase config parameters removed.',
-        quote: "Do not look back."
+        quote: "Keep your eyes locked on the horizon. Looking back only summons the ghosts."
       });
     }
   };

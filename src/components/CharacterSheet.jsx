@@ -8,7 +8,7 @@ import { Dumbbell, Flame, TrendingUp, Trophy, Plus, Trash2, Shield, Swords, Spar
 const WEAPONS = [
   { id: 'dagger', name: 'Tethered Dagger', desc: 'A rusty dagger. Your struggle has just begun.', req: 'Default unlocked' },
   { id: 'greatsword', name: 'Iron Slab Greatsword', desc: 'A massive hunk of raw iron. Demands high Strength.', req: 'Requires STR Level 5', check: (levels) => levels.STR >= 5 },
-  { id: 'dragonslayer', name: 'Dragon-Slayer Blade', desc: 'Too thick, too heavy, and too rough to be called a sword. Legend says it can cleave dragons.', req: 'Requires STR Level 10', check: (levels) => levels.STR >= 10 },
+  { id: 'dragonslayer', name: 'Iron Dreadnought', desc: 'A massive, unpolished slab of iron. Forged not for display, but to carve a path through fate itself.', req: 'Requires STR Level 10', check: (levels) => levels.STR >= 10 },
   { id: 'scroll', name: 'Scroll of Runic Seals', desc: 'A parchment inscribed with ancient equations to focus the mind.', req: 'Requires INT Level 5', check: (levels) => levels.INT >= 5 },
   { id: 'grimoire', name: 'Grimoire of the Void', desc: 'A dark ledger filled with logic-defying algorithms.', req: 'Requires INT Level 10', check: (levels) => levels.INT >= 10 }
 ];
@@ -16,7 +16,7 @@ const WEAPONS = [
 const ARMORS = [
   { id: 'rags', name: 'Tattered Rag Cloak', desc: 'Simple worn cloth. Offers minimal protection against fate.', req: 'Default unlocked' },
   { id: 'chainmail', name: 'Ashen Chainmail', desc: 'Standard steel chain links forged in ashes.', req: 'Requires VIT Level 5', check: (levels) => levels.VIT >= 5 },
-  { id: 'berserker', name: 'Berserker Carapace', desc: 'A cursed iron suit that fuels your relentless drive to move forward.', req: 'Requires VIT Level 10', check: (levels) => levels.VIT >= 10 },
+  { id: 'berserker', name: 'Husk of Ruin', desc: 'Cursed plate forged from dark iron. It dulls all pain, fueling a relentless, unyielding drive to march forward.', req: 'Requires VIT Level 10', check: (levels) => levels.VIT >= 10 },
   { id: 'assassin', name: 'Shadow Assassin Garb', desc: 'Light weight silent leather that blends with shadows.', req: 'Requires AGI Level 5', check: (levels) => levels.AGI >= 5 },
   { id: 'shroud', name: 'Void-Stalker Shroud', desc: 'A cloak woven from dark energy that bends space around you.', req: 'Requires AGI Level 10', check: (levels) => levels.AGI >= 10 }
 ];
@@ -57,7 +57,7 @@ const CHARACTER_TIERS = [
     glow: 'shadow-[0_0_25px_rgba(249,115,22,0.4)] border-orange-500/50',
     banner: 'bg-orange-500/10 text-orange-400',
     color: 'text-orange-400',
-    req: 'Requires Berserker Carapace or Level 20+'
+    req: 'Requires Husk of Ruin or Level 20+'
   },
   { 
     tier: 4, 
@@ -73,7 +73,7 @@ const CHARACTER_TIERS = [
     tier: 5, 
     title: 'Eclipse Sovereign', 
     desc: 'The ultimate survivor of the dark eclipse. Wearing the crown of unmatched resolve.', 
-    class: 'God-Hand Slayer', 
+    class: 'Fate Cleaver', 
     glow: 'shadow-[0_0_35px_rgba(239,68,68,0.5)] border-brand-red',
     banner: 'bg-brand-red/10 text-brand-red',
     color: 'text-brand-red',
@@ -227,7 +227,7 @@ export default function CharacterSheet({ onNotification, activeTab }) {
       type: 'quest_complete',
       title: 'TRAINING RECORD SECURED',
       desc: `Logged ${newWorkout.name} (${newWorkout.sets} sets). STR gained +${earnedXP} XP!`,
-      quote: "My place is here. In the mud, the blood, and the ash. That is where I struggle."
+      quote: "Let them keep their clean towers. My domain is here—in the mud, the sweat, and the ash. This is where my iron is forged."
     });
 
     // Check level up
@@ -238,7 +238,7 @@ export default function CharacterSheet({ onNotification, activeTab }) {
         type: 'level_up',
         title: 'STR LEVEL UP',
         desc: `Your Strength (STR) has reached Level ${newLvl}! Your muscles forge through agony.`,
-        quote: "That thing was too big to be called a sword."
+        quote: "It was a slab of raw, coarse iron—forged not for show, but to cleave destiny itself."
       });
     }
 
@@ -249,7 +249,7 @@ export default function CharacterSheet({ onNotification, activeTab }) {
         type: 'achievement_unlocked',
         title: 'THE BRAND DEEPENS: ACHIEVEMENT UNLOCKED',
         desc: `You unlocked a new badge. Details in achievement grid.`,
-        quote: "Go ahead and whine. Struggle. Run. Squirm."
+        quote: "Cry out. Whine. Twist and fight. But never cease your struggle."
       });
     });
   };
@@ -291,7 +291,7 @@ export default function CharacterSheet({ onNotification, activeTab }) {
       type: 'quest_complete',
       title: 'CONDITIONING COMPLETED',
       desc: `Logged ${newCardio.activity} (${newCardio.minutes} mins). AGI gained +${earnedXP} XP!`,
-      quote: "If you're always running away, you'll never see the things you want to change."
+      quote: "If your back is always turned in flight, you will never witness the destiny you seek to forge."
     });
 
     // Check level up
@@ -302,7 +302,7 @@ export default function CharacterSheet({ onNotification, activeTab }) {
         type: 'level_up',
         title: 'AGI LEVEL UP',
         desc: `Your Agility (AGI) has reached Level ${newLvl}! Fast as the shadows of the Eclipse.`,
-        quote: "He who takes action survives. That is the only law of this world."
+        quote: "Those who move are those who survive. That is the only law of the ash."
       });
     }
 
@@ -313,7 +313,7 @@ export default function CharacterSheet({ onNotification, activeTab }) {
         type: 'achievement_unlocked',
         title: 'THE BRAND DEEPENS: ACHIEVEMENT UNLOCKED',
         desc: `Your endurance has unlocked a new mark in your profile.`,
-        quote: "Struggle. Run. Squirm. Fight your way out."
+        quote: "Fight. Twist. Carve your way out of the dark."
       });
     });
   };

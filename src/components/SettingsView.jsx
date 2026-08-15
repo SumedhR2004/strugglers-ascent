@@ -56,7 +56,7 @@ export default function SettingsView({ onNotification, onRecommit, activeTab }) 
         type: 'quest_complete',
         title: 'PRESETS INITIALIZED',
         desc: 'Successfully loaded all standard preset objectives to the ledger.',
-        quote: "Keep moving forward. In the end, the struggler is the only one who survives."
+        quote: "Keep moving forward. In the end, only those who refuse to yield remain standing."
       });
       audioController.playLevelUp();
     }
@@ -140,7 +140,7 @@ export default function SettingsView({ onNotification, onRecommit, activeTab }) 
       type: 'quest_complete',
       title: 'SYSTEM PARAMETERS MODIFIED',
       desc: 'Daily quest targets and reset configurations updated successfully.',
-      quote: "He who takes action survives. That is the only law of this world."
+      quote: "Those who move are those who survive. That is the only law of the ash."
     });
   };
 
@@ -161,7 +161,7 @@ export default function SettingsView({ onNotification, onRecommit, activeTab }) 
         type: 'quest_complete',
         title: 'DATA SECURED',
         desc: 'All Brand stats, daily logs, and reflection records exported to JSON successfully.',
-        quote: "Do not look back. If you do, you will only see what you have lost."
+        quote: "Keep your eyes locked on the horizon. Looking back only summons the ghosts of what you could not save."
       });
     } catch (e) {
       console.error(e);
@@ -186,7 +186,7 @@ export default function SettingsView({ onNotification, onRecommit, activeTab }) 
             type: 'quest_complete',
             title: 'SYSTEM RESTORED',
             desc: 'Successfully imported all historical data and stats! Re-branding system...',
-            quote: "Even if we painstakingly piece together something lost, things change. But we persist."
+            quote: "Even if what was broken is gathered once more, the seams remain. Yet we persist."
           });
           setTimeout(() => {
             window.location.reload();
@@ -213,7 +213,7 @@ export default function SettingsView({ onNotification, onRecommit, activeTab }) 
           type: 'streak_decay',
           title: 'SYSTEM REDUCED TO ASH',
           desc: 'All stats and struggles wiped from memory. Brand status reset.',
-          quote: "Go ahead and whine. Struggle. Run. Squirm. Fight your way out."
+          quote: "Cry out. Whine. Twist and fight. But never cease your struggle."
         });
         setTimeout(() => {
           window.location.reload();

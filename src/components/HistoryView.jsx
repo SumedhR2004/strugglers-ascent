@@ -141,7 +141,7 @@ export default function HistoryView({ onNotification, activeTab }) {
         type: 'quest_complete',
         title: 'HISTORICAL BACKFILL CLEARED',
         desc: `Backfilled ${config.label} for ${selectedDate}. Awarded ${Object.entries(xpReport).map(([k, v]) => `+${v} ${k}`).join(', ')} XP!`,
-        quote: "Go ahead and whine. Struggle. Run. Squirm. Fight your way out."
+        quote: "Cry out. Whine. Twist and fight. But never cease your struggle."
       });
 
       // Check level-ups
@@ -154,7 +154,7 @@ export default function HistoryView({ onNotification, activeTab }) {
             type: 'level_up',
             title: `${statName} LEVEL UP`,
             desc: `Your ${statName} has hit Level ${newLvl} from your historical efforts.`,
-            quote: "Struggle. Run. Squirm. Fight your way out."
+            quote: "Fight. Twist. Carve your way out of the dark."
           });
         }
       });
@@ -166,7 +166,7 @@ export default function HistoryView({ onNotification, activeTab }) {
           type: 'achievement_unlocked',
           title: 'ACHIEVEMENT UNLOCKED',
           desc: `Your retroactive grind has earned a new badge.`,
-          quote: "Even if we weak ones struggle, it is our brand."
+          quote: "Frail, scarred, and outmatched—we march forward regardless."
         });
       });
     }
@@ -186,7 +186,7 @@ export default function HistoryView({ onNotification, activeTab }) {
         type: 'quest_complete',
         title: 'ARCHIVE ENTRY UPDATED',
         desc: `Reflection journal for ${selectedDate} has been saved.`,
-        quote: "Even if we painstakingly piece together something lost, it doesn't mean things will ever go back to how they were."
+        quote: "You can gather the scattered shards of what was shattered, but the seams will always show. We rebuild to advance, not to return."
       });
     }
   };
