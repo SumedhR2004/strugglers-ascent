@@ -8,6 +8,63 @@ import {
 import { audioController } from '../lib/audio';
 import { BrandSigil } from './BrandSigil';
 
+function RankBadge({ rankName }) {
+  const [imageError, setImageError] = useState(false);
+  
+  useEffect(() => {
+    setImageError(false);
+  }, [rankName]);
+
+  const getRankConfig = (name) => {
+    if (name.includes("Novice")) {
+      return {
+        file: "/rank_novice.png",
+        letter: "N",
+        color: "text-brand-gray-light border-brand-border/60",
+        label: "Novice"
+      };
+    }
+    if (name.includes("Vanguard")) {
+      return {
+        file: "/rank_vanguard.png",
+        letter: "V",
+        color: "text-sky-400 border-sky-500/40",
+        label: "Vanguard"
+      };
+    }
+    if (name.includes("Champion")) {
+      return {
+        file: "/rank_champion.png",
+        letter: "C",
+        color: "text-brand-red border-brand-red",
+        label: "Champion"
+      };
+    }
+    return { file: null, letter: "?", color: "text-brand-gray border-brand-border" };
+  };
+
+  const config = getRankConfig(rankName);
+
+  if (config.file && !imageError) {
+    return (
+      <img 
+        src={config.file} 
+        alt={rankName} 
+        onError={() => setImageError(true)}
+        className="w-full h-full object-cover animate-fade-in"
+      />
+    );
+  }
+
+  return (
+    <div className={`w-full h-full flex flex-col items-center justify-center p-1 border text-center select-none ${config.color} bg-[#0b0b0b] relative`}>
+      <span className="text-xl font-serif font-black tracking-tighter uppercase">{config.letter}</span>
+      <span className="text-[7px] font-mono tracking-widest uppercase mt-0.5 text-brand-gray opacity-80">{config.label}</span>
+      <span className="text-[5px] font-sans text-brand-gray/60 uppercase absolute bottom-1">Artwork Pending</span>
+    </div>
+  );
+}
+
 export default function TodayView({ onNotification, activeTab, setActiveTab }) {
   const [dateStr, setDateStr] = useState('');
   const [log, setLog] = useState(null);
@@ -412,28 +469,39 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
         </div>
 
         {/* Current Rank Panel */}
-        <div className="md:col-span-2 border border-brand-border bg-brand-card p-6 shadow-lg relative overflow-hidden flex flex-col justify-between">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
-            <div>
-              <h3 className="text-xs font-serif uppercase tracking-widest text-brand-gray-light">Active Fighter Arc</h3>
-              <h2 className="text-lg font-serif font-bold text-brand-bone tracking-wide">{rankInfo.rank}</h2>
+        <div className="md:col-span-2 border border-brand-border bg-brand-card p-6 shadow-lg relative overflow-hidden flex flex-col sm:flex-row gap-6 justify-between items-center">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-red-950/10 rounded-full blur-2xl pointer-events-none" />
+          
+          {/* Rank info and progress (takes left side) */}
+          <div className="flex-1 w-full space-y-4">
+            <div className="flex justify-between items-start gap-2">
+              <div>
+                <h3 className="text-xs font-serif uppercase tracking-widest text-brand-gray-light">Active Fighter Arc</h3>
+                <h2 className="text-lg font-serif font-bold text-brand-bone tracking-wide">{rankInfo.rank}</h2>
+              </div>
+              <div className="text-right">
+                <span className="text-xs font-mono text-brand-gold bg-brand-bg/80 border border-brand-border/40 px-2.5 py-0.5">Total XP: {rankInfo.totalCumulativeXP}</span>
+              </div>
             </div>
-            <div className="text-right">
-              <span className="text-xs font-mono text-brand-gold">Total XP: {rankInfo.totalCumulativeXP}</span>
+
+            <div className="space-y-1">
+              <div className="flex justify-between text-[10px] text-brand-gray uppercase tracking-widest">
+                <span>Struggle Progression</span>
+                <span>Next Rank: {rankInfo.nextRank}</span>
+              </div>
+              <div className="h-2 w-full bg-brand-bg border border-brand-border overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-brand-red to-brand-gold transition-all duration-700" 
+                  style={{ width: `${rankInfo.progress}%` }}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="space-y-1">
-            <div className="flex justify-between text-[10px] text-brand-gray uppercase tracking-widest">
-              <span>Struggle Progression</span>
-              <span>Next Rank: {rankInfo.nextRank}</span>
-            </div>
-            <div className="h-2 w-full bg-brand-bg border border-brand-border overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-brand-red to-brand-gold transition-all duration-700" 
-                style={{ width: `${rankInfo.progress}%` }}
-              />
-            </div>
+          {/* Badge Frame Slot (takes right side) */}
+          <div className="flex-shrink-0 w-20 h-20 bg-brand-bg border border-brand-border relative flex items-center justify-center overflow-hidden shadow-inner">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(201,162,39,0.08)_0%,transparent_70%)]" />
+            <RankBadge rankName={rankInfo.rank} />
           </div>
         </div>
       </div>

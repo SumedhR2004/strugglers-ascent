@@ -1,4 +1,4 @@
-const CACHE_NAME = 'brand-ascension-v2';
+const CACHE_NAME = 'brand-ascension-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
