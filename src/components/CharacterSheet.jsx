@@ -88,7 +88,7 @@ function CharacterPortrait({ tier, title }) {
     setImageError(false);
   }, [tier]);
 
-  const ext = tier === 5 ? 'jpg' : 'png';
+  const ext = 'jpg';
   const filename = `character_tier${tier}.${ext}`;
 
   if (imageError) {
