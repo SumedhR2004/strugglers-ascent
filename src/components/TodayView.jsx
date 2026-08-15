@@ -65,6 +65,43 @@ function RankBadge({ rankName }) {
   );
 }
 
+const getActiveTier = (stats) => {
+  if (!stats) return 1;
+  
+  const totalCumulativeXP = Object.values(stats).reduce((acc, stat) => acc + (stat.cumulativeXP || 0), 0);
+  const equippedArmor = localStorage.getItem('brand-eq-armor') || 'rags';
+  const equippedRelic = localStorage.getItem('brand-eq-relic') || 'ring';
+
+  const getLevelInfoForStat = (xp) => {
+    if (xp <= 0) return { level: 1 };
+    const lvl = Math.floor(0.5 + Math.sqrt(0.25 + xp / 50));
+    return { level: lvl };
+  };
+
+  const strInfo = getLevelInfoForStat(stats.STR?.cumulativeXP || 0);
+  const agiInfo = getLevelInfoForStat(stats.AGI?.cumulativeXP || 0);
+  const vitInfo = getLevelInfoForStat(stats.VIT?.cumulativeXP || 0);
+  const intInfo = getLevelInfoForStat(stats.INT?.cumulativeXP || 0);
+  const perInfo = getLevelInfoForStat(stats.PER?.cumulativeXP || 0);
+
+  if (equippedRelic === 'eclipse_sigil' || totalCumulativeXP >= 10000) {
+    return 5;
+  } else if (equippedArmor === 'shroud') {
+    return 4;
+  } else if (equippedArmor === 'berserker') {
+    return 3;
+  } else if (equippedArmor === 'chainmail' || equippedArmor === 'assassin') {
+    return 2;
+  } else {
+    const maxLevel = Math.max(strInfo.level, agiInfo.level, vitInfo.level, intInfo.level, perInfo.level);
+    if (maxLevel >= 40) return 5;
+    else if (maxLevel >= 30) return 4;
+    else if (maxLevel >= 20) return 3;
+    else if (maxLevel >= 10) return 2;
+  }
+  return 1;
+};
+
 export default function TodayView({ onNotification, activeTab, setActiveTab }) {
   const [dateStr, setDateStr] = useState('');
   const [log, setLog] = useState(null);
@@ -437,6 +474,7 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
 
   // Rank Display
   const rankInfo = getRankInfo(stats);
+  const activeTier = getActiveTier(stats);
 
   return (
     <div className="space-y-6">
@@ -469,11 +507,23 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
         </div>
 
         {/* Current Rank Panel */}
-        <div className="md:col-span-2 border border-brand-border bg-brand-card p-6 shadow-lg relative overflow-hidden flex flex-col sm:flex-row gap-6 justify-between items-center">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-red-950/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="md:col-span-2 border border-brand-border bg-brand-card p-6 shadow-lg relative overflow-hidden flex flex-col sm:flex-row gap-6 justify-between items-center group">
+          {/* Background Image with dark fantasy overlay */}
+          <div className="absolute inset-0 z-0 opacity-25 pointer-events-none transition-transform duration-1000 group-hover:scale-105">
+            <img 
+              src={`/rank_bg_${activeTier}.jpg`} 
+              alt="" 
+              className="w-full h-full object-cover filter brightness-[0.35] contrast-125 saturate-[0.65]"
+            />
+            {/* Thematic dark gradients to blend it perfectly */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d0d] via-[#0d0d0d]/80 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] to-transparent opacity-90" />
+          </div>
+
+          <div className="absolute top-0 right-0 w-24 h-24 bg-red-950/10 rounded-full blur-2xl pointer-events-none z-0" />
           
           {/* Rank info and progress (takes left side) */}
-          <div className="flex-1 w-full space-y-4">
+          <div className="flex-1 w-full space-y-4 z-10">
             <div className="flex justify-between items-start gap-2">
               <div>
                 <h3 className="text-xs font-serif uppercase tracking-widest text-brand-gray-light">Active Fighter Arc</h3>
@@ -499,7 +549,7 @@ export default function TodayView({ onNotification, activeTab, setActiveTab }) {
           </div>
 
           {/* Badge Frame Slot (takes right side) */}
-          <div className="flex-shrink-0 w-20 h-20 bg-brand-bg border border-brand-border relative flex items-center justify-center overflow-hidden shadow-inner">
+          <div className="flex-shrink-0 w-20 h-20 bg-brand-bg border border-brand-border relative flex items-center justify-center overflow-hidden shadow-inner z-10">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(201,162,39,0.08)_0%,transparent_70%)]" />
             <RankBadge rankName={rankInfo.rank} />
           </div>
