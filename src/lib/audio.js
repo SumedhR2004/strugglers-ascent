@@ -2,6 +2,7 @@
 
 let audioCtx = null;
 let bgMusicAudio = null;
+let wasPlayingBeforeHide = false;
 
 // Audio settings state
 let isMuted = localStorage.getItem('brand-audio-muted') === 'true';
@@ -220,3 +221,35 @@ export const audioController = {
     }
   }
 };
+
+// App background / active states lifecycle listener for mobile PWA and Capacitor
+if (typeof document !== 'undefined') {
+  const handleAppPause = () => {
+    if (bgMusicAudio && !bgMusicAudio.paused) {
+      bgMusicAudio.pause();
+      wasPlayingBeforeHide = true;
+    }
+  };
+
+  const handleAppResume = () => {
+    if (wasPlayingBeforeHide && isMusicEnabled && !isMuted) {
+      if (bgMusicAudio) {
+        bgMusicAudio.play().catch(e => {
+          console.warn("[Audio Engine] Failed to resume audio on app foreground:", e);
+        });
+      }
+      wasPlayingBeforeHide = false;
+    }
+  };
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      handleAppPause();
+    } else {
+      handleAppResume();
+    }
+  });
+
+  document.addEventListener('pause', handleAppPause);
+  document.addEventListener('resume', handleAppResume);
+}
