@@ -222,14 +222,12 @@ export default function App() {
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
           {/* Logo & Mute */}
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="text-brand-red pulsing-brand">
-                <BrandSigil size="w-7 h-7" />
-              </div>
-              <div>
-                <h1 className="text-xs md:text-sm font-serif font-black tracking-widest text-brand-bone uppercase leading-none">THE BRAND</h1>
-                <span className="text-[7px] md:text-[8px] font-mono text-brand-gray uppercase tracking-widest">ASCENSION SYSTEM</span>
-              </div>
+            <div className="flex items-center gap-3 select-none">
+              <img 
+                src="/logo.jpg" 
+                alt="Brand of Ascension" 
+                className="h-9 md:h-11 w-auto object-contain filter brightness-110"
+              />
             </div>
             
             {/* Audio Toggle Button */}

@@ -62,13 +62,16 @@ export default function EntryRitual({ onAccept }) {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(139,0,0,0.12)_0%,transparent_65%)] pointer-events-none" />
       <div className="absolute inset-0 bg-radial-glow opacity-30 pointer-events-none" />
       
-      {/* Pulse Brand */}
       <div 
         className={`transition-all duration-1000 ${
           stage === 0 ? 'opacity-0 scale-75' : 'opacity-100 scale-100'
         } ${stage === 3 ? 'animate-branding-flash' : 'pulsing-brand'} ${glowColor}`}
       >
-        <BrandSigil size="w-44 h-44 md:w-52 md:h-52" />
+        <img 
+          src="/logo.jpg" 
+          alt="Brand of Ascension" 
+          className="w-80 md:w-[480px] max-w-full h-auto object-contain mx-auto filter drop-shadow-[0_0_30px_rgba(168,85,247,0.35)]"
+        />
       </div>
 
       {/* Ritual Prompt */}
